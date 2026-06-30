@@ -3,6 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { useMusicMatch } from '../context/MusicMatchContext';
 import { Pagination } from '../components/Pagination';
 
+function slugify(text: string): string {
+  return text
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\'/g, '-')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+function resolveImagePath(song: { title: string; coverUrl?: string | null }): string {
+  if (song.coverUrl) {
+    if (song.coverUrl.startsWith('http') || song.coverUrl.startsWith('/images/')) return song.coverUrl;
+    return `/images/${song.coverUrl}`;
+  }
+  return `/images/${slugify(song.title)}.png`;
+}
+
 const PAGE_SIZES = [10, 25, 50];
 
 export function Feed() {
@@ -81,10 +99,8 @@ export function Feed() {
                   <div className="avatar avatar-md" style={{ flexShrink: 0 }}>{item.userName[0].toUpperCase()}</div>
 
                   {/* Song cover */}
-                  {item.song.coverUrl
-                    ? <img src={item.song.coverUrl} alt={item.song.title} style={{ width: '44px', height: '44px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />
-                    : <div style={{ width: '44px', height: '44px', borderRadius: '6px', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🎵</div>
-                  }
+                  <img src={resolveImagePath(item.song)} alt={item.song.title} onError={e => { e.currentTarget.onerror=null; e.currentTarget.style.display='none'; const f=e.currentTarget.nextElementSibling as HTMLElement|null; if(f) f.style.display='flex'; }} style={{ width: '44px', height: '44px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />
+                  <div style={{ width: '44px', height: '44px', borderRadius: '6px', background: 'var(--muted)', display: 'none', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🎵</div>
 
                   {/* Text */}
                   <div style={{ flex: 1, minWidth: 0 }}>

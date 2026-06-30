@@ -1,13 +1,31 @@
 import { useNavigate } from 'react-router-dom';
 import { useMusicMatch } from '../context/MusicMatchContext';
 
+function slugify(text: string): string {
+  if (!text) return 'unknown';
+  return text
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/'/g, '-')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+function resolveImagePath(song: { title?: string | null; coverUrl?: string | null }): string {
+  if (song.coverUrl) {
+    if (song.coverUrl.startsWith('http') || song.coverUrl.startsWith('/images/')) return song.coverUrl;
+    return `/images/${song.coverUrl}`;
+  }
+  return `/images/${slugify(song.title ?? '')}.png`;
+}
+
 function SongRow({ song, score }: { song: any; score: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: 'var(--muted)', borderRadius: '8px' }}>
-      {song.coverUrl
-        ? <img src={song.coverUrl} alt={song.title} style={{ width: '42px', height: '42px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />
-        : <div style={{ width: '42px', height: '42px', borderRadius: '6px', backgroundColor: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🎵</div>
-      }
+      <img src={resolveImagePath(song)} alt={song.title} onError={e => { e.currentTarget.onerror=null; e.currentTarget.style.display='none'; const f=e.currentTarget.nextElementSibling as HTMLElement|null; if(f) f.style.display='flex'; }} style={{ width: '42px', height: '42px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />
+      <div style={{ width: '42px', height: '42px', borderRadius: '6px', backgroundColor: 'var(--border)', display: 'none', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🎵</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontWeight: '600', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{song.title}</p>
         <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{song.artist}</p>

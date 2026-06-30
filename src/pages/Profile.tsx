@@ -1,6 +1,24 @@
 import { useState } from 'react';
 import { useMusicMatch } from '../context/MusicMatchContext';
 
+function slugify(text: string): string {
+  return text
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\'/g, '-')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+function resolveImagePath(song: { title: string; coverUrl?: string | null }): string {
+  if (song.coverUrl) {
+    if (song.coverUrl.startsWith('http') || song.coverUrl.startsWith('/images/')) return song.coverUrl;
+    return `/images/${song.coverUrl}`;
+  }
+  return `/images/${slugify(song.title)}.png`;
+}
+
 export function Profile() {
   const { user, myRatings, latentProfile, updateProfile, deleteRating, addToast } = useMusicMatch();
 
@@ -179,10 +197,8 @@ export function Profile() {
                     border: '1px solid var(--border)', borderRadius: '8px',
                   }}
                 >
-                  {r.song.coverUrl
-                    ? <img src={r.song.coverUrl} alt={r.song.title} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />
-                    : <div style={{ width: '40px', height: '40px', borderRadius: '6px', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🎵</div>
-                  }
+                  <img src={resolveImagePath(r.song)} alt={r.song.title} onError={e => { e.currentTarget.onerror=null; e.currentTarget.style.display='none'; const f=e.currentTarget.nextElementSibling as HTMLElement|null; if(f) f.style.display='flex'; }} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />
+                  <div style={{ width: '40px', height: '40px', borderRadius: '6px', background: 'var(--muted)', display: 'none', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🎵</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontWeight: '600', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.song.title}</p>
                     <p style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>{r.song.artist}</p>
