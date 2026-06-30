@@ -66,6 +66,15 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
   // Filtrar puntos para mostrar solo x >= 0
   const filteredPoints = points.filter(pt => pt.x >= 0);
 
+  // Funciones para zoom con botones
+  const handleZoomIn = () => {
+    zoomRef.current = Math.min(3, zoomRef.current + 0.15);
+  };
+
+  const handleZoomOut = () => {
+    zoomRef.current = Math.max(0.3, zoomRef.current - 0.15);
+  };
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -313,7 +322,7 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.font = '9px monospace';
     ctx.textAlign = 'right';
-    ctx.fillText('X: 0→0.5 (visualmente estirado ×1.8)', W - 12, H - 8);
+    ctx.fillText(`Zoom: ${Math.round(zoom * 100)}% · X: 0→0.5 (visualmente estirado ×1.8)`, W - 12, H - 8);
   }, [filteredPoints, selectedUser]);
 
   // Auto-rotate
@@ -374,9 +383,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
     dragRef.current.lastY = e.clientY;
   };
   const onMouseUp = () => { dragRef.current.active = false; };
-  const onWheel = (e: React.WheelEvent) => {
-    zoomRef.current = Math.max(0.3, Math.min(3, zoomRef.current - e.deltaY * 0.001));
-  };
   const onClick = (e: React.MouseEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -402,13 +408,80 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
-        onWheel={onWheel}
         onClick={onClick}
       />
 
       {/* Controls hint */}
       <div style={{ position: 'absolute', bottom: '12px', left: '12px', fontSize: '10px', color: 'var(--muted-foreground)', lineHeight: '1.6', pointerEvents: 'none' }}>
-        🖱 Drag to rotate · Scroll to zoom · Click a dot to inspect
+        🖱 Drag to rotate · Click a dot to inspect
+      </div>
+
+      {/* Zoom controls */}
+      <div style={{ position: 'absolute', bottom: '12px', right: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <button
+          onClick={handleZoomIn}
+          style={{
+            width: '32px',
+            height: '32px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            background: 'var(--muted)',
+            border: '1px solid var(--border)',
+            borderRadius: '6px',
+            color: 'var(--foreground)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--accent)';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'var(--muted)';
+            e.currentTarget.style.color = 'var(--foreground)';
+          }}
+        >
+          +
+        </button>
+        <button
+          onClick={handleZoomOut}
+          style={{
+            width: '32px',
+            height: '32px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            background: 'var(--muted)',
+            border: '1px solid var(--border)',
+            borderRadius: '6px',
+            color: 'var(--foreground)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--accent)';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'var(--muted)';
+            e.currentTarget.style.color = 'var(--foreground)';
+          }}
+        >
+          −
+        </button>
+        <div style={{
+          fontSize: '10px',
+          color: 'var(--muted-foreground)',
+          textAlign: 'center',
+          paddingTop: '2px',
+        }}>
+          {Math.round(zoomRef.current * 100)}%
+        </div>
       </div>
 
       {/* Auto-rotate toggle */}
@@ -438,7 +511,7 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
 
       {/* Selected user panel */}
       {selectedUser && (
-        <div style={{ position: 'absolute', bottom: '36px', right: '12px', background: '#1c2128', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 16px', fontSize: '12px', minWidth: '180px' }}>
+        <div style={{ position: 'absolute', bottom: '36px', right: '60px', background: '#1c2128', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 16px', fontSize: '12px', minWidth: '180px' }}>
           <p style={{ fontWeight: '700', marginBottom: '6px' }}>{selectedUser.userName} {selectedUser.isMe && '(You)'}</p>
           <p style={{ color: 'var(--muted-foreground)', fontFamily: 'monospace', fontSize: '11px', marginBottom: '6px' }}>
             [{selectedUser.x.toFixed(3)}, {selectedUser.y.toFixed(3)}, {selectedUser.z.toFixed(3)}]
