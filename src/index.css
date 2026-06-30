@@ -113,3 +113,21 @@ a { color: inherit; text-decoration: none; }
 .avatar-lg { width: 64px; height: 64px; font-size: 26px; }
 
 .songs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+
+/* Pantallas más altas que anchas (celular en vertical) */
+@media (orientation: portrait) {
+  .page-content { padding: 16px; }
+  .page-header { margin-bottom: 20px; }
+  .page-header h1 { font-size: 22px; }
+  .page-header p { font-size: 13px; }
+  .section { margin-bottom: 20px; }
+
+  .stats-row { gap: 10px; margin-bottom: 20px; }
+  .stat-card { min-width: calc(50% - 5px); padding: 14px; }
+  .stat-value { font-size: 22px; }
+
+  .songs-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+
+  .pagination { width: 100%; }
+  .pagination-info { width: 100%; text-align: center; }
+}

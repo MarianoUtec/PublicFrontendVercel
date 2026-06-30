@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useMusicMatch } from '../context/MusicMatchContext';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const navItems = [
   { path: '/',               icon: '🏠', label: 'Dashboard' },
@@ -15,6 +16,47 @@ export function Sidebar() {
   const location = useLocation();
   const { user, logout } = useMusicMatch();
   const active = (p: string) => location.pathname === p;
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <aside style={{
+        width: '100%', flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid var(--border)',
+        display: 'flex', flexDirection: 'row', alignItems: 'stretch', overflowX: 'auto',
+      }}>
+        {navItems.map(item => (
+          <Link
+            key={item.path}
+            to={item.path}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px',
+              padding: '8px 2px 6px', fontSize: '10px', fontWeight: '500', flex: '1 0 0', minWidth: 0,
+              backgroundColor: active(item.path) ? 'rgba(124,58,237,0.2)' : 'transparent',
+              color: active(item.path) ? '#9f5ef8' : 'var(--muted-foreground)',
+              borderTop: active(item.path) ? '2px solid var(--primary)' : '2px solid transparent',
+            }}
+          >
+            <span style={{ fontSize: '18px' }}>{item.icon}</span>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+              {item.label.split(' ')[0]}
+            </span>
+          </Link>
+        ))}
+        <button
+          onClick={logout}
+          style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px',
+            padding: '8px 2px 6px', fontSize: '10px', fontWeight: '500', flex: '1 0 0', minWidth: 0,
+            background: 'transparent', border: 'none', borderTop: '2px solid transparent', color: 'var(--muted-foreground)',
+          }}
+          title={user?.name}
+        >
+          <span style={{ fontSize: '18px' }}>🚪</span>
+          Salir
+        </button>
+      </aside>
+    );
+  }
 
   return (
     <aside style={{

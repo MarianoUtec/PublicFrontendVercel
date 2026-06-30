@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MusicMatchProvider, useMusicMatch } from './context/MusicMatchContext';
 import { Sidebar } from './components/Sidebar';
 import { ToastContainer } from './components/ToastContainer';
+import { useIsMobile } from './hooks/useIsMobile';
 
 const Login        = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
 const Dashboard    = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -24,6 +25,7 @@ function PageLoading() {
 
 function AppContent() {
   const { isAuthenticated, toasts, removeToast } = useMusicMatch();
+  const isMobile = useIsMobile();
 
   if (!isAuthenticated) {
     return (
@@ -39,7 +41,7 @@ function AppContent() {
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', height: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)', overflow: 'hidden' }}>
       <Sidebar />
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <Suspense fallback={<PageLoading />}>

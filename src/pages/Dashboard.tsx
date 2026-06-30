@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useMusicMatch } from '../context/MusicMatchContext';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 function slugify(text: string): string {
   if (!text) return 'unknown';
@@ -42,6 +43,7 @@ function SongRow({ song, score }: { song: any; score: number }) {
 export function Dashboard() {
   const { user, myRatings, recommendation, latentProfile, latentUsers, loadingRatings, loadingRecs, feedItems } = useMusicMatch();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const topRatings = [...myRatings].sort((a, b) => b.score - a.score).slice(0, 5);
   const avgRating = myRatings.length > 0 ? (myRatings.reduce((sum, r) => sum + r.score, 0) / myRatings.length).toFixed(1) : '—';
@@ -77,7 +79,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '24px', flexWrap: 'wrap' }}>
           {/* Top Rated Songs */}
           <div className="section" style={{ gridColumn: '1' }}>
             <h3>⭐ Top Rated Songs</h3>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMusicMatch } from '../context/MusicMatchContext';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 // Convierte el título de la canción en el mismo slug usado para los .mp3 / .png
 // Ej: "Freak'N You" -> "freak-n-you" | "Te Encontré" -> "te-encontre"
@@ -36,6 +37,7 @@ export function Recommendations() {
     fetchCompatibilities
   } = useMusicMatch();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => { 
     fetchRecommendations();
@@ -97,7 +99,7 @@ export function Recommendations() {
             <button className="btn btn-primary" onClick={() => navigate('/rate')}>Rate Songs</button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 320px', gap: isMobile ? '20px' : '32px' }}>
             {/* Songs */}
             <div>
               {recommendation && (

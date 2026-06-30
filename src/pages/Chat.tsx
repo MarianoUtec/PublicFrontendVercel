@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useMusicMatch } from '../context/MusicMatchContext';
 import * as api from '../lib/api';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 export function Chat() {
   const { 
@@ -24,6 +25,7 @@ export function Chat() {
   const [sending, setSending] = useState(false);
   const [activeConv, setActiveConv] = useState<api.Conversation | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // Crear mapa de compatibilidades
   const compatibilityMap = useMemo(() => {
@@ -120,9 +122,10 @@ export function Chat() {
   const formatTime = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100%', overflow: 'hidden' }}>
       {/* Conversations sidebar */}
-      <div style={{ width: '280px', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
+      {(!isMobile || !activeConv) && (
+      <div style={{ width: isMobile ? '100%' : '280px', flex: isMobile ? '1 1 auto' : '0 0 280px', borderRight: isMobile ? 'none' : '1px solid var(--border)', display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: '700' }}>💬 Chats</h2>
         </div>
@@ -226,12 +229,18 @@ export function Chat() {
           </div>
         )}
       </div>
+      )}
 
       {/* Messages area */}
       {activeConv ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Header */}
           <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {isMobile && (
+              <button onClick={() => setActiveConv(null)} className="btn btn-ghost btn-sm" style={{ padding: '6px 10px', flexShrink: 0 }}>
+                ← Back
+              </button>
+            )}
             <div className="avatar avatar-md">{activeConv.otherUserName?.[0]?.toUpperCase() || '?'}</div>
             <div>
               <p style={{ fontWeight: '700', fontSize: '16px' }}>{activeConv.otherUserName}</p>
@@ -298,11 +307,13 @@ export function Chat() {
           </div>
         </div>
       ) : (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: 'var(--muted-foreground)', gap: '12px' }}>
-          <p style={{ fontSize: '40px' }}>💬</p>
-          <p style={{ fontSize: '16px', fontWeight: '600', color: 'var(--foreground)' }}>Select a conversation</p>
-          <p style={{ fontSize: '14px' }}>or start a new one from the sidebar</p>
-        </div>
+        !isMobile && (
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: 'var(--muted-foreground)', gap: '12px' }}>
+            <p style={{ fontSize: '40px' }}>💬</p>
+            <p style={{ fontSize: '16px', fontWeight: '600', color: 'var(--foreground)' }}>Select a conversation</p>
+            <p style={{ fontSize: '14px' }}>or start a new one from the sidebar</p>
+          </div>
+        )
       )}
     </div>
   );

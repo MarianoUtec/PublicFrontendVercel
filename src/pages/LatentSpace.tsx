@@ -24,7 +24,9 @@ function project(
   const dy = y - centerY;
   
   // Aplicar estiramiento en X para mejor visualización
-  const stretchX = 4;
+  // (en celular -pantalla más alta que ancha- se reduce a 1 para no deformar la vista)
+  const isMobileViewport = typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
+  const stretchX = isMobileViewport ? 1 : 4;
   const stretchedDx = dx * stretchX;
   
   // Rotate around Y
