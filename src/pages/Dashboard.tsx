@@ -89,7 +89,7 @@ export function Dashboard() {
                   <p style={{ fontSize: '36px', fontWeight: '800' }} className="gradient-text">{Math.round(latentProfile?.compatibilityScore || 0)}%</p>
                   {latentProfile && (
                     <code style={{ fontSize: '11px', color: 'var(--muted-foreground)', backgroundColor: 'var(--muted)', padding: '4px 8px', borderRadius: '4px' }}>
-                      [{latentProfile.coordX.toFixed(2)}, {latentProfile.coordY.toFixed(2)}, {latentProfile.coordZ.toFixed(2)}]
+                      [{latentProfile.coordX.toFixed(2)}, {latentProfile.coordY.toFixed(2)}]
                     </code>
                   )}
                   <button className="btn btn-outline btn-sm" onClick={() => navigate('/latent-space')}>View Latent Space →</button>
