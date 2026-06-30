@@ -238,6 +238,13 @@ export const users = {
       return data;
     } catch (e) { apiError(e); }
   },
+  // ─── Nueva función de compatibilidades ──────────────────────────────────────
+  meCompatibilities: async (): Promise<{ compatibilities: Array<{ userId: number; userName: string; compatibilityScore: number }> }> => {
+    try {
+      const { data } = await client.get('/api/v1/users/me/compatibilities');
+      return data;
+    } catch (e) { apiError(e); }
+  },
 };
 
 // ─── Songs ────────────────────────────────────────────────────────────────────

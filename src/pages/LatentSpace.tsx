@@ -17,14 +17,14 @@ function project(
   zoom: number,
   centerX: number = 0,
   centerY: number = 0,
-  aspectRatio: number = 1, // Nuevo parámetro para controlar el aspecto
+  aspectRatio: number = 1,
 ) {
   // Primero desplazamos al centro de rotación
   const dx = x - centerX;
   const dy = y - centerY;
   
   // Aplicar estiramiento en X para mejor visualización
-  const stretchX = 4; // Factor de estiramiento para el eje X
+  const stretchX = 4;
   const stretchedDx = dx * stretchX;
   
   // Rotate around Y
@@ -38,7 +38,6 @@ function project(
   // Perspective
   const fov = zoom * 300;
   const d = fov / (fov + z2 + 2);
-  // Aplicamos el centro de rotación a la proyección
   return { 
     sx: W / 2 + x1 * fov * d, 
     sy: H / 2 + y2 * fov * d, 
@@ -58,15 +57,12 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
   const [tooltip, setTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
   const [selectedUser, setSelectedUser] = useState<Point3D | null>(null);
 
-  // Centro de rotación y posición del eje Y
   const centerX = 0.26;
   const centerY = 0;
-  const stretchX = 1.8; // Factor de estiramiento para el eje X
+  const stretchX = 1.8;
 
-  // Filtrar puntos para mostrar solo x >= 0
   const filteredPoints = points.filter(pt => pt.x >= 0);
 
-  // Funciones para zoom con botones
   const handleZoomIn = () => {
     zoomRef.current = Math.min(3, zoomRef.current + 0.15);
   };
@@ -85,10 +81,8 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
 
     const rotX = rotRef.current.x, rotY = rotRef.current.y, zoom = zoomRef.current;
 
-    // Dibujar el centro de rotación con un marcador
     const center = project(centerX, centerY, 0, rotX, rotY, W, H, zoom, centerX, centerY);
     
-    // Círculo grande para el centro
     ctx.beginPath();
     ctx.arc(center.sx, center.sy, 8, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.3)';
@@ -97,19 +91,16 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
     ctx.stroke();
     ctx.setLineDash([]);
     
-    // Círculo pequeño
     ctx.beginPath();
     ctx.arc(center.sx, center.sy, 3, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.fill();
     
-    // Etiqueta
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '9px monospace';
     ctx.textAlign = 'left';
     ctx.fillText('🔄 Centro (0.26, 0, 0)', center.sx + 10, center.sy - 4);
 
-    // Función para dibujar flecha en un punto
     const drawArrow = (x: number, y: number, angle: number, color: string) => {
       const arrowSize = 8;
       ctx.fillStyle = color;
@@ -121,16 +112,13 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
       ctx.fill();
     };
 
-    // Dibujar ejes con límites ajustados y flechas en ambos extremos
-    const axisLength = 0.5; // Longitud aumentada para mejor visualización
+    const axisLength = 0.5;
     
-    // Eje X: desde 0 hasta axisLength (visualmente estirado)
     const xFrom = [0, 0, 0];
     const xTo = [axisLength, 0, 0];
     const pXFrom = project(xFrom[0], xFrom[1], xFrom[2], rotX, rotY, W, H, zoom, centerX, centerY);
     const pXTo = project(xTo[0], xTo[1], xTo[2], rotX, rotY, W, H, zoom, centerX, centerY);
     
-    // Línea del eje X con mayor grosor
     ctx.beginPath();
     ctx.strokeStyle = '#ef4444aa';
     ctx.lineWidth = 2.5;
@@ -140,22 +128,18 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
     ctx.stroke();
     ctx.setLineDash([]);
     
-    // Flechas en ambos extremos del eje X (más grandes)
     const angleX = Math.atan2(pXTo.sy - pXFrom.sy, pXTo.sx - pXFrom.sx);
     drawArrow(pXFrom.sx, pXFrom.sy, angleX + Math.PI, '#ef4444');
     drawArrow(pXTo.sx, pXTo.sy, angleX, '#ef4444');
     
-    // Etiqueta X en el extremo positivo (más grande)
     ctx.fillStyle = '#ef4444';
     ctx.font = 'bold 14px monospace';
     ctx.fillText('X', pXTo.sx + 12, pXTo.sy - 6);
     
-    // Etiqueta en el extremo negativo
     ctx.fillStyle = '#ef444488';
     ctx.font = '10px monospace';
     ctx.fillText('0', pXFrom.sx - 18, pXFrom.sy - 6);
 
-    // Añadir marcas de medición en el eje X
     for (let val = 0.1; val <= 0.5; val += 0.1) {
       const p = project(val, 0, 0, rotX, rotY, W, H, zoom, centerX, centerY);
       ctx.beginPath();
@@ -170,13 +154,11 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
       ctx.fillText(val.toFixed(1), p.sx, p.sy + 16);
     }
 
-    // Eje Y: desde -axisLength hasta axisLength en x=centerX
     const yFrom = [centerX, -axisLength, 0];
     const yTo = [centerX, axisLength, 0];
     const pYFrom = project(yFrom[0], yFrom[1], yFrom[2], rotX, rotY, W, H, zoom, centerX, centerY);
     const pYTo = project(yTo[0], yTo[1], yTo[2], rotX, rotY, W, H, zoom, centerX, centerY);
     
-    // Línea del eje Y
     ctx.beginPath();
     ctx.strokeStyle = '#22c55e88';
     ctx.lineWidth = 2;
@@ -186,23 +168,19 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
     ctx.stroke();
     ctx.setLineDash([]);
     
-    // Flechas en ambos extremos del eje Y
     const angleY = Math.atan2(pYTo.sy - pYFrom.sy, pYTo.sx - pYFrom.sx);
     drawArrow(pYFrom.sx, pYFrom.sy, angleY + Math.PI, '#22c55e');
     drawArrow(pYTo.sx, pYTo.sy, angleY, '#22c55e');
     
-    // Etiqueta Y en el extremo positivo
     ctx.fillStyle = '#22c55e';
     ctx.font = 'bold 14px monospace';
     ctx.fillText('Y', pYTo.sx + 10, pYTo.sy - 6);
     
-    // Etiqueta en el extremo negativo
     ctx.fillStyle = '#22c55e66';
     ctx.font = '10px monospace';
     const negYLabel = project(centerX, -axisLength, 0, rotX, rotY, W, H, zoom, centerX, centerY);
     ctx.fillText('-0.5', negYLabel.sx - 24, negYLabel.sy - 6);
 
-    // Añadir marcas de medición en el eje Y
     for (let val = -0.5; val <= 0.5; val += 0.1) {
       if (Math.abs(val) < 0.01) continue;
       const p = project(centerX, val, 0, rotX, rotY, W, H, zoom, centerX, centerY);
@@ -218,7 +196,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
       ctx.fillText(val.toFixed(1), p.sx + (val < 0 ? -8 : 8), p.sy + 4);
     }
 
-    // Marcar el origen (0,0)
     const origin = project(0, 0, 0, rotX, rotY, W, H, zoom, centerX, centerY);
     ctx.beginPath();
     ctx.arc(origin.sx, origin.sy, 4, 0, Math.PI * 2);
@@ -232,8 +209,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
     ctx.textAlign = 'left';
     ctx.fillText('(0,0)', origin.sx + 8, origin.sy - 8);
 
-    // Grid dots en la región x >= 0 (hasta axisLength)
-    // Grid más denso en X para mostrar mejor el estiramiento
     for (let xi = 0; xi <= axisLength; xi += 0.1) {
       for (let yi = -axisLength; yi <= axisLength; yi += 0.1) {
         const p = project(xi, yi, 0, rotX, rotY, W, H, zoom, centerX, centerY);
@@ -244,13 +219,11 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
       }
     }
 
-    // Sort by depth so closer points are on top
     const projected = filteredPoints.map(pt => {
       const p = project(pt.x, pt.y, pt.z, rotX, rotY, W, H, zoom, centerX, centerY);
       return { ...pt, sx: p.sx, sy: p.sy, z2: p.z2 };
     }).sort((a, b) => a.z2 - b.z2);
 
-    // Draw connections from me to nearest
     if (myCoords && myCoords.x >= 0) {
       const me = project(myCoords.x, myCoords.y, myCoords.z, rotX, rotY, W, H, zoom, centerX, centerY);
       filteredPoints.filter(p => p.isClosest && p.x >= 0).forEach(pt => {
@@ -266,13 +239,11 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
       });
     }
 
-    // Draw points
     projected.forEach(pt => {
       const isSelected = selectedUser?.userId === pt.userId;
       const r = pt.isMe ? 12 : pt.isClosest ? 10 : isSelected ? 9 : 7;
       const color = pt.isMe ? '#a855f7' : pt.isClosest ? '#fbbf24' : '#6366f1';
 
-      // Glow
       if (pt.isMe || pt.isClosest || isSelected) {
         const grd = ctx.createRadialGradient(pt.sx, pt.sy, 0, pt.sx, pt.sy, r * 3.5);
         grd.addColorStop(0, color + '55');
@@ -283,7 +254,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
         ctx.fill();
       }
 
-      // Dot
       ctx.beginPath();
       ctx.arc(pt.sx, pt.sy, r, 0, Math.PI * 2);
       ctx.fillStyle = color;
@@ -294,7 +264,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
         ctx.stroke();
       }
 
-      // Label
       if (pt.isMe) {
         ctx.fillStyle = '#a855f7';
         ctx.font = 'bold 12px sans-serif';
@@ -310,7 +279,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
       }
     });
 
-    // Mostrar mensaje si no hay puntos visibles
     if (filteredPoints.length === 0) {
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.font = '14px sans-serif';
@@ -318,14 +286,12 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
       ctx.fillText('No hay usuarios con x ≥ 0', W/2, H/2);
     }
 
-    // Añadir indicador de escala
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.font = '9px monospace';
     ctx.textAlign = 'right';
     ctx.fillText(`Zoom: ${Math.round(zoom * 100)}% · X: 0→0.5 (visualmente estirado ×1.8)`, W - 12, H - 8);
   }, [filteredPoints, selectedUser]);
 
-  // Auto-rotate
   useEffect(() => {
     let last = 0;
     const tick = (t: number) => {
@@ -340,7 +306,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
     return () => cancelAnimationFrame(animRef.current);
   }, [draw]);
 
-  // Resize
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -354,14 +319,12 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
     return () => ro.disconnect();
   }, []);
 
-  // Mouse events
   const onMouseDown = (e: React.MouseEvent) => {
     dragRef.current = { active: true, lastX: e.clientX, lastY: e.clientY };
     autoRotRef.current = false;
   };
   const onMouseMove = (e: React.MouseEvent) => {
     if (!dragRef.current.active) {
-      // Tooltip
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -411,12 +374,10 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
         onClick={onClick}
       />
 
-      {/* Controls hint */}
       <div style={{ position: 'absolute', bottom: '12px', left: '12px', fontSize: '10px', color: 'var(--muted-foreground)', lineHeight: '1.6', pointerEvents: 'none' }}>
         🖱 Drag to rotate · Click a dot to inspect
       </div>
 
-      {/* Zoom controls */}
       <div style={{ position: 'absolute', bottom: '12px', right: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         <button
           onClick={handleZoomIn}
@@ -484,7 +445,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
         </div>
       </div>
 
-      {/* Auto-rotate toggle */}
       <button
         style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '11px', padding: '4px 10px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--muted-foreground)', cursor: 'pointer' }}
         onClick={() => { autoRotRef.current = !autoRotRef.current; }}
@@ -492,7 +452,6 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
         {autoRotRef.current ? '⏸ Stop rotation' : '▶ Auto-rotate'}
       </button>
 
-      {/* Legend */}
       <div style={{ position: 'absolute', top: '12px', left: '12px', fontSize: '11px', color: 'var(--muted-foreground)', display: 'flex', flexDirection: 'column', gap: '3px', pointerEvents: 'none' }}>
         <span>🟣 You</span>
         <span>🟡 Best match</span>
@@ -502,14 +461,12 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
         <span style={{ fontSize: '9px', opacity: 0.4, color: '#ef4444' }}>⬅️ X visualmente estirado ×1.8</span>
       </div>
 
-      {/* Tooltip */}
       {tooltip && (
         <div style={{ position: 'fixed', top: tooltip.y - 36, left: tooltip.x + 10, background: '#1c2128', border: '1px solid var(--border)', borderRadius: '6px', padding: '4px 10px', fontSize: '12px', color: 'var(--foreground)', pointerEvents: 'none', zIndex: 100, whiteSpace: 'nowrap' }}>
           {tooltip.text}
         </div>
       )}
 
-      {/* Selected user panel */}
       {selectedUser && (
         <div style={{ position: 'absolute', bottom: '36px', right: '60px', background: '#1c2128', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 16px', fontSize: '12px', minWidth: '180px' }}>
           <p style={{ fontWeight: '700', marginBottom: '6px' }}>{selectedUser.userName} {selectedUser.isMe && '(You)'}</p>
@@ -526,11 +483,23 @@ function Space3D({ points, myCoords }: { points: Point3D[]; myCoords: { x: numbe
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 export function LatentSpace() {
-  const { latentUsers, latentProfile, latentHistory, loadingLatent, fetchLatent } = useMusicMatch();
+  const { 
+    latentUsers, 
+    latentProfile, 
+    latentHistory, 
+    loadingLatent, 
+    fetchLatent,
+    compatibilities,
+    loadingCompatibilities,
+    fetchCompatibilities
+  } = useMusicMatch();
 
-  useEffect(() => { fetchLatent(); }, []);
+  useEffect(() => { 
+    fetchLatent();
+    fetchCompatibilities();
+  }, []);
 
-  if (loadingLatent) {
+  if (loadingLatent || loadingCompatibilities) {
     return (
       <div className="page-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="spinner" />
@@ -538,14 +507,39 @@ export function LatentSpace() {
     );
   }
 
+  // Crear mapa de compatibilidades
+  const compatibilityMap = new Map<number, number>();
+  compatibilities.forEach(item => {
+    compatibilityMap.set(item.userId, item.compatibilityScore);
+  });
+
+  // Combinar datos de usuarios con compatibilidades
+  const usersWithCompatibility = latentUsers.map(user => ({
+    ...user,
+    compatibilityScore: compatibilityMap.get(user.userId) || 0
+  }));
+
+  // Encontrar mejor match (excluyendo al usuario actual)
+  const currentUserId = latentProfile?.userId;
+  const bestMatch = usersWithCompatibility
+    .filter(u => u.userId !== currentUserId)
+    .sort((a, b) => b.compatibilityScore - a.compatibilityScore)[0] || null;
+
+  // Actualizar perfil con la mejor compatibilidad
+  const updatedLatentProfile = latentProfile ? {
+    ...latentProfile,
+    closestUserId: bestMatch?.userId || null,
+    compatibilityScore: bestMatch?.compatibilityScore || 0,
+  } : null;
+
   // Forzar Z a 0 para todos los puntos
-  const myCoords = latentProfile ? { 
-    x: latentProfile.coordX, 
-    y: latentProfile.coordY, 
+  const myCoords = updatedLatentProfile ? { 
+    x: updatedLatentProfile.coordX, 
+    y: updatedLatentProfile.coordY, 
     z: 0
   } : null;
   
-  const sortedUsers = [...latentUsers].sort((a, b) => b.compatibilityScore - a.compatibilityScore);
+  const sortedUsers = [...usersWithCompatibility].sort((a, b) => b.compatibilityScore - a.compatibilityScore);
 
   const distanceTo = (u: { x: number; y: number; z: number }) => {
     if (!myCoords) return 0;
@@ -560,8 +554,8 @@ export function LatentSpace() {
     userId: u.userId, 
     userName: u.userName,
     compatibilityScore: u.compatibilityScore,
-    isMe: !!(latentProfile && u.userId === latentProfile.userId),
-    isClosest: !!(latentProfile && u.userId === latentProfile.closestUserId),
+    isMe: !!(updatedLatentProfile && u.userId === updatedLatentProfile.userId),
+    isClosest: !!(updatedLatentProfile && u.userId === updatedLatentProfile.closestUserId),
   }));
 
   const usersWithXNegative = points.filter(p => p.x < 0).length;
@@ -583,7 +577,7 @@ export function LatentSpace() {
         </div>
 
         {/* My position */}
-        {latentProfile && myCoords && (
+        {updatedLatentProfile && myCoords && (
           <div className="section">
             <h3>Your Position</h3>
             <div className="card" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(6,182,212,0.1) 100%)', border: '1px solid rgba(124,58,237,0.4)' }}>
@@ -600,7 +594,12 @@ export function LatentSpace() {
                 })}
                 <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Best Match</p>
-                  <p style={{ fontSize: '28px', fontWeight: '700', color: '#fbbf24' }}>{Math.round(latentProfile.compatibilityScore)}%</p>
+                  <p style={{ fontSize: '28px', fontWeight: '700', color: '#fbbf24' }}>{Math.round(updatedLatentProfile.compatibilityScore)}%</p>
+                  {bestMatch && (
+                    <p style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                      {bestMatch.userName}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -652,8 +651,8 @@ export function LatentSpace() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {sortedUsers.map(u => {
-                const isMe = latentProfile && u.userId === latentProfile.userId;
-                const isClosest = latentProfile && u.userId === latentProfile.closestUserId;
+                const isMe = updatedLatentProfile && u.userId === updatedLatentProfile.userId;
+                const isClosest = updatedLatentProfile && u.userId === updatedLatentProfile.closestUserId;
                 const dist = distanceTo(u);
                 const isVisible = u.x >= 0;
                 return (

@@ -3,6 +3,13 @@ import * as api from '../lib/api';
 
 interface Toast { id: number; message: string; type: 'success' | 'error' | 'info' }
 
+// ── Nuevo tipo para compatibilidades ──────────────────────────────────────────
+interface CompatibilityItem {
+  userId: number;
+  userName: string;
+  compatibilityScore: number;
+}
+
 interface MusicMatchContextType {
   // Auth
   user: api.User | null;
@@ -41,6 +48,11 @@ interface MusicMatchContextType {
   latentHistory: api.LatentHistoryItem[];
   loadingLatent: boolean;
   fetchLatent: () => Promise<void>;
+
+  // ── Nuevo: Compatibilities ──────────────────────────────────────────────────
+  compatibilities: CompatibilityItem[];
+  loadingCompatibilities: boolean;
+  fetchCompatibilities: () => Promise<void>;
 
   // Feed
   feedItems: api.FeedItem[];
@@ -88,6 +100,10 @@ export function MusicMatchProvider({ children }: { children: ReactNode }) {
   const [latentUsers, setLatentUsers] = useState<api.LatentSpaceUser[]>([]);
   const [latentHistory, setLatentHistory] = useState<api.LatentHistoryItem[]>([]);
   const [loadingLatent, setLoadingLatent] = useState(false);
+
+  // ── Nuevo estado para compatibilidades ──────────────────────────────────────
+  const [compatibilities, setCompatibilities] = useState<CompatibilityItem[]>([]);
+  const [loadingCompatibilities, setLoadingCompatibilities] = useState(false);
 
   const [feedItems, setFeedItems] = useState<api.FeedItem[]>([]);
   const [loadingFeed, setLoadingFeed] = useState(false);
@@ -152,6 +168,7 @@ export function MusicMatchProvider({ children }: { children: ReactNode }) {
     setLatentUsers([]);
     setFeedItems([]);
     setConversations([]);
+    setCompatibilities([]); // Limpiar compatibilidades
   };
 
   const clearError = () => setError(null);
@@ -208,6 +225,22 @@ export function MusicMatchProvider({ children }: { children: ReactNode }) {
     finally { setLoadingLatent(false); }
   }, [isAuthenticated]);
 
+  // ── Nuevo: fetchCompatibilities ─────────────────────────────────────────────
+  const fetchCompatibilities = useCallback(async () => {
+    if (!isAuthenticated) return;
+    setLoadingCompatibilities(true);
+    try {
+      const response = await api.users.meCompatibilities();
+      // La respuesta es { compatibilities: [...] }
+      setCompatibilities(response.compatibilities || []);
+    } catch (e) {
+      console.error('fetchCompatibilities', e);
+      setCompatibilities([]);
+    } finally {
+      setLoadingCompatibilities(false);
+    }
+  }, [isAuthenticated]);
+
   const fetchFeed = useCallback(async () => {
     if (!isAuthenticated) return;
     setLoadingFeed(true);
@@ -229,9 +262,10 @@ export function MusicMatchProvider({ children }: { children: ReactNode }) {
     fetchRatings();
     fetchRecommendations();
     fetchLatent();
+    fetchCompatibilities(); // Añadir al refresh
     fetchFeed();
     fetchConversations();
-  }, [fetchSongs, fetchRatings, fetchRecommendations, fetchLatent, fetchFeed, fetchConversations]);
+  }, [fetchSongs, fetchRatings, fetchRecommendations, fetchLatent, fetchCompatibilities, fetchFeed, fetchConversations]);
 
   useEffect(() => {
     if (isAuthenticated) refreshAll();
@@ -270,6 +304,7 @@ export function MusicMatchProvider({ children }: { children: ReactNode }) {
       myRatings, ratedMap, submitRating, deleteRating, loadingRatings,
       recommendation, loadingRecs, fetchRecommendations,
       latentProfile, latentUsers, latentHistory, loadingLatent, fetchLatent,
+      compatibilities, loadingCompatibilities, fetchCompatibilities, // Nuevo
       feedItems, loadingFeed, fetchFeed,
       conversations, loadingConversations, fetchConversations,
       toasts, addToast, removeToast,
