@@ -108,7 +108,7 @@ export function Recommendations() {
                       <div style={{ width: '100%', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px' }}>
                         <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Latent Coordinates</p>
                         <code style={{ fontSize: '12px', color: 'var(--accent)' }}>
-                          [{closestUser.x.toFixed(3)}, {closestUser.y.toFixed(3)}, {closestUser.z.toFixed(3)}]
+                          [{closestUser.x.toFixed(3)}, {closestUser.y.toFixed(3)}]
                         </code>
                       </div>
                     )}
@@ -135,7 +135,7 @@ export function Recommendations() {
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <p style={{ fontWeight: '600', fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.userName}</p>
                             <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontFamily: 'monospace' }}>
-                              [{u.x.toFixed(2)}, {u.y.toFixed(2)}, {u.z.toFixed(2)}]
+                              [{u.x.toFixed(2)}, {u.y.toFixed(2)}]
                             </p>
                           </div>
                           <span className="badge badge-primary">{Math.round(u.compatibilityScore)}%</span>
