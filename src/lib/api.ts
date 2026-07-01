@@ -1,6 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-const BASE_URL = (import.meta as any).env?.VITE_API_URL;
+// Always use the full backend URL. Vite's dev proxy only works in `vite dev`,
+// NOT in the production build served by Amplify. Using a full URL here ensures
+// that both local dev and production send requests to the correct backend.
+const BASE_URL = ((import.meta as any).env?.VITE_API_URL as string | undefined)
+  ?.replace(/\/$/, ''); // strip trailing slash to avoid double-slash URLs
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 export function getAccessToken(): string | null {
