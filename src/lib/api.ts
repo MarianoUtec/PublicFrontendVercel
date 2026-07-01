@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-const BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8080';
+const BASE_URL = (import.meta as any).env?.DEV
+  ? 'http://localhost:8080'
+  : ((import.meta as any).env?.VITE_API_URL || '');
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 export function getAccessToken(): string | null {
